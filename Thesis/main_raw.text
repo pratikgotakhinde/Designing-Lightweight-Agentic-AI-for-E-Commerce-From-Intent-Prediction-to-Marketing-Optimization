@@ -1,0 +1,17 @@
+Background:
+
+In many machine learning papers, online purchase intention is treated in a very practical way. The “intention” is defined as a simple yes/no label that says whether a session ended with a purchase or not, instead of trying to model the full psychology behind a buying decision (Sakar et al., 2018; Sakar et al., 2020).
+
+With this setup, the problem becomes a standard supervised classification task on session‑level features. Each row in the dataset is one session, described by things like counts and durations of different page types, bounce and exit rates, and some context information such as month or visitor type (Sakar et al., 2018).
+
+Different studies have trained common classifiers on this kind of data, including logistic regression, decision trees, random forests, gradient boosting and support vector machines. They usually report metrics such as accuracy, ROC–AUC, precision and recall to compare how well the models separate purchase from non‑purchase sessions (Sakar et al., 2020; other purchase‑intention papers).
+
+Overall, the results in the literature suggest that tree‑based ensemble models and boosting methods often get the best predictive performance, but simpler models like logistic regression are still interesting because they are easier to explain and implement (Sakar et al., 2020)
+
+While this prediction work focuses on mapping inputs to labels, a separate line of AI research talks about “agents”. In classical AI, an agent is usually described as something that can observe its environment, keep some internal state or policy, and then choose and execute actions in order to reach certain goals (Russell and Norvig, 2010; multi‑agent systems textbooks).
+
+More recent discussions use the term “agentic AI” for systems that are built on large language models but can also call tools, use APIs, and plan several steps in a row instead of only answering single prompts (IBM, 2025; Anthropic, 2024; Databricks, 2026).
+
+In e‑commerce and marketing, industry articles describe “agentic commerce” scenarios where such agents help with tasks like acting as shopping assistants, updating product recommendations, testing different messages, adjusting prices or triggering campaigns across channels (IBM, 2026; Alokai, 2025; BigCommerce, 2025; Valantic, 2025).
+
+These descriptions are mostly high‑level and focus on the business vision. They rarely go into detail on how to design a very small, transparent agent that sits on top of a standard prediction model and uses those predictions to choose simple marketing actions.
