@@ -1,20 +1,15 @@
-import os
-import sys
-import json
-import pickle
+import os, json, pickle
 import numpy as np
 import pandas as pd
 import streamlit as st
 
+BASE_DIR  = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))  # pages/ -> AgenticShipIPMO/
+MODEL_DIR = os.path.join(BASE_DIR, "model")
+
+def _path(f): return os.path.join(MODEL_DIR, f)
+
 st.set_page_config(page_title="Batch Scoring", layout="wide")
 
-# resolve model folder relative to this file
-BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
-
-def _path(filename):
-    return os.path.join(BASE_DIR, "model", filename)
-
-# load everything needed — self-contained, no dependency on agent.py
 @st.cache_resource
 def load_model_and_config():
     try:

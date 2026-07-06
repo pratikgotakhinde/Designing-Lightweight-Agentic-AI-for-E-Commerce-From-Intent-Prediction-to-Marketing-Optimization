@@ -1,16 +1,22 @@
-import numpy as np
-import shap
-import joblib
+import os, json, pickle, shap
 
-# thresholds from the training analysis — tuned to balance precision and coverage
-HIGH_THRESHOLD = 0.60
-MEDIUM_THRESHOLD = 0.40
+BASE_DIR  = os.path.dirname(os.path.abspath(__file__))
+MODEL_DIR = os.path.join(BASE_DIR, "model")
+
+def _path(f):
+    return os.path.join(MODEL_DIR, f)
+
+with open(_path("thresholds.json")) as f:
+    _t = json.load(f)
+
+HIGH_THRESHOLD   = _t["HIGH_THRESHOLD"]
+MEDIUM_THRESHOLD = _t["MEDIUM_THRESHOLD"]
 
 
 class IntentScoringAgent:
-    # loads the saved xgboost model and scores a single user session
-    def __init__(self, model_path="xgb_model.pkl"):
-        self.model = joblib.load(model_path)
+    def __init__(self):
+        with open(_path("xgb_model.pkl"), "rb") as f:
+            self.model = pickle.load(f)
 
     def score(self, features_df):
         prob = self.model.predict_proba(features_df)[0][1]
@@ -24,48 +30,45 @@ class IntentScoringAgent:
 
 
 class ExplanationAgent:
-    # uses shap to pull the top 3 features that pushed this score up or down
     def __init__(self, model, feature_names):
-        self.explainer = shap.TreeExplainer(model)
+        self.explainer     = shap.TreeExplainer(model)
         self.feature_names = feature_names
 
     def explain(self, features_df):
-        shap_vals = self.explainer.shap_values(features_df)[0]
-        # pair each feature with its shap value and sort by absolute impact
+        sv = self.explainer.shap_values(features_df)
+        shap_vals = sv[1][0] if isinstance(sv, list) else sv[0]
         pairs = sorted(
             zip(self.feature_names, shap_vals),
             key=lambda x: abs(x[1]),
             reverse=True
         )
-        top3 = [(name, round(val, 4)) for name, val in pairs[:3]]
-        return top3
+        return [(name, round(val, 4)) for name, val in pairs[:3]]
 
 
 class MarketingActionAgent:
-    # rule-based action assignment — no llm needed here, just fast and auditable
     def decide(self, tier):
-        actions = {
-            "HIGH":   {"action": "Show Urgency Banner",  "cost": 0.00, "message": "Limited stock — order now!"},
-            "MEDIUM": {"action": "Offer 10% Discount",   "cost": 5.00, "message": "Here's 10% off just for you."},
-            "LOW":    {"action": "Retargeting Ad",        "cost": 0.50, "message": "Come back — your cart misses you."},
-        }
-        return actions[tier]
+        return {
+            "HIGH":   {"action": "Show Urgency Banner",  "message": "Only a few left — grab yours before it's gone.", "cost": 0.00, "color": "green"},
+            "MEDIUM": {"action": "Offer 10% Discount",   "message": "Here's 10% off — just for this session.",        "cost": 5.00, "color": "orange"},
+            "LOW":    {"action": "Queue Retargeting Ad", "message": "Come back soon — your cart is waiting.",          "cost": 0.50, "color": "red"},
+        }[tier]
 
 
 class AgenticOrchestrator:
-    # ties all three agents together into one pipeline call
-    def __init__(self, model_path="xgb_model.pkl", feature_names=None):
-        self.scorer = IntentScoringAgent(model_path)
-        self.explainer = ExplanationAgent(self.scorer.model, feature_names)
-        self.actor = MarketingActionAgent()
+    def __init__(self):
+        with open(_path("feature_cols.json")) as f:
+            self.feature_names = json.load(f)
+        self.scorer    = IntentScoringAgent()
+        self.explainer = ExplanationAgent(self.scorer.model, self.feature_names)
+        self.actor     = MarketingActionAgent()
 
     def run(self, features_df):
-        score, tier = self.scorer.score(features_df)
+        score, tier  = self.scorer.score(features_df)
         top_features = self.explainer.explain(features_df)
-        action = self.actor.decide(tier)
+        action       = self.actor.decide(tier)
         return {
-            "score": score,
-            "tier": tier,
+            "score":        score,
+            "tier":         tier,
             "top_features": top_features,
-            "action": action,
+            "action":       action,
         }

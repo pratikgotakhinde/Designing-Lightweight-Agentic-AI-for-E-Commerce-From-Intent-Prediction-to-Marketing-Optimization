@@ -1,7 +1,11 @@
-import pandas as pd
 import os, json
-BASE_DIR = os.path.dirname(os.path.abspath(__file__))
+import pandas as pd
 
+BASE_DIR  = os.path.dirname(os.path.abspath(__file__))
+MODEL_DIR = os.path.join(BASE_DIR, "model")
+
+with open(os.path.join(MODEL_DIR, "feature_cols.json")) as f:
+    FEATURE_COLUMNS = json.load(f)
 
 # month encoding matches what was used during training — order matters
 MONTH_MAP = {
@@ -26,6 +30,8 @@ FEATURE_COLUMNS = [
     'VisitorType_Other', 'VisitorType_Returning_Visitor'
 ]
 
+MONTHS        = ["Feb", "Mar", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"]
+VISITOR_TYPES = ["New_Visitor", "Returning_Visitor", "Other"]
 
 def build_feature_row(inputs: dict) -> pd.DataFrame:
     row = {col: 0 for col in FEATURE_COLUMNS}

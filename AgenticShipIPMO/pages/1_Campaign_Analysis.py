@@ -1,21 +1,17 @@
-import os
-import json
-import pickle
+import os, json, pickle
 import numpy as np
 import pandas as pd
 import streamlit as st
 import plotly.express as px
 import plotly.graph_objects as go
-from plotly.subplots import make_subplots
 
-BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
+BASE_DIR  = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))  # pages/ -> AgenticShipIPMO/
+MODEL_DIR = os.path.join(BASE_DIR, "model")
 
-def _path(filename):
-    return os.path.join(BASE_DIR, "model", filename)
+def _path(f): return os.path.join(MODEL_DIR, f)
 
 st.set_page_config(page_title="Campaign Analysis", layout="wide")
 
-# load model + thresholds
 @st.cache_resource
 def load_resources():
     with open(_path("xgb_model.pkl"), "rb") as f:
@@ -146,7 +142,7 @@ st.divider()
 st.subheader("Tier Breakdown — What to Do Per Group")
 
 breakdown = pd.DataFrame({
-    "Tier":           ["🟢 HIGH",        "🟡 MEDIUM",       "🔴 LOW"],
+    "Tier":           [" HIGH",        " MEDIUM",       " LOW"],
     "Sessions":       [high,             medium,             low],
     "Share":          [f"{high/total:.0%}", f"{medium/total:.0%}", f"{low/total:.0%}"],
     "Recommended Action": ["Urgency Banner", "10% Discount Coupon", "Retargeting Ad"],
@@ -236,7 +232,7 @@ if existing_cols:
         .reset_index()
     )
     pattern_df.columns = ["Tier"] + existing_cols
-    pattern_df["Tier"] = ["🟢 HIGH", "🟡 MEDIUM", "🔴 LOW"]
+    pattern_df["Tier"] = [" HIGH", " MEDIUM", " LOW"]
     st.dataframe(pattern_df, use_container_width=True, hide_index=True)
 
     # radar chart — normalise each metric 0-1 for visual comparison
@@ -251,7 +247,7 @@ if existing_cols:
             norm_df[col] = 0.5
 
     fig_radar = go.Figure()
-    colors = {"🟢 HIGH": "#22c55e", "🟡 MEDIUM": "#f59e0b", "🔴 LOW": "#ef4444"}
+    colors = {" HIGH": "#22c55e", " MEDIUM": "#f59e0b", " LOW": "#ef4444"}
     for _, row in norm_df.iterrows():
         values = [row[c] for c in existing_cols] + [row[existing_cols[0]]]
         fig_radar.add_trace(go.Scatterpolar(

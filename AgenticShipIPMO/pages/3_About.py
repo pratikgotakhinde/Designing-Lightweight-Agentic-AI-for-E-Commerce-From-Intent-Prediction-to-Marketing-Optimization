@@ -1,14 +1,13 @@
-import os
-import json
+import os, json
 import streamlit as st
+
+BASE_DIR  = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
+MODEL_DIR = os.path.join(BASE_DIR, "model")
 
 st.set_page_config(page_title="About", layout="centered")
 
-BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
-
-# load thresholds so the about page always shows the actual values used
 try:
-    with open(os.path.join(BASE_DIR, "model", "thresholds.json")) as f:
+    with open(os.path.join(MODEL_DIR, "thresholds.json")) as f:
         t = json.load(f)
     HIGH_T = t["HIGH_THRESHOLD"]
     MED_T  = t["MEDIUM_THRESHOLD"]
@@ -39,7 +38,7 @@ st.subheader("The three intent tiers")
 c1, c2, c3 = st.columns(3)
 
 with c1:
-    st.markdown(f"### 🟢 HIGH")
+    st.markdown(f"###  HIGH")
     st.markdown(f"""
     **Score ≥ {HIGH_T}**
 
@@ -52,7 +51,7 @@ with c1:
     """)
 
 with c2:
-    st.markdown(f"### 🟡 MEDIUM")
+    st.markdown(f"###  MEDIUM")
     st.markdown(f"""
     **Score {MED_T} – {HIGH_T}**
 
@@ -65,7 +64,7 @@ with c2:
     """)
 
 with c3:
-    st.markdown(f"### 🔴 LOW")
+    st.markdown(f"### LOW")
     st.markdown(f"""
     **Score < {MED_T}**
 

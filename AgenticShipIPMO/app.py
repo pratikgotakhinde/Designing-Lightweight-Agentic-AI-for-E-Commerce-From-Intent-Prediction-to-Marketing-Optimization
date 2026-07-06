@@ -1,14 +1,12 @@
-import streamlit as st
-import pandas as pd
+import os, streamlit as st
 from agent import AgenticOrchestrator
-from model_utils import build_feature_row, FEATURE_COLUMNS
+from model_utils import build_feature_row, FEATURE_COLUMNS, MONTHS, VISITOR_TYPES
 
-st.set_page_config(page_title="ShopIQ", layout="centered")
+st.set_page_config(page_title="ShopIQ", page_icon="🛒", layout="centered")
 
-# load the orchestrator once — no need to reload on every interaction
 @st.cache_resource
 def load_agent():
-    return AgenticOrchestrator(model_path="model/xgb_model.pkl", feature_names=FEATURE_COLUMNS)
+    return AgenticOrchestrator()  
 
 agent = load_agent()
 
