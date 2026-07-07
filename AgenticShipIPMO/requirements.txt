@@ -1,7 +1,16 @@
-streamlit>=1.35.0
-xgboost>=2.0.0
-shap>=0.45.0
-scikit-learn>=1.4.0
-pandas>=2.0.0
-numpy>=1.26.0
-joblib>=1.3.0
+# Core app
+streamlit==1.34.0
+
+# ML and data
+xgboost==2.0.3
+scikit-learn==1.4.2
+pandas==2.2.2
+numpy==1.26.4
+
+# Explainability
+shap==0.44.0
+
+# Visualization
+plotly==5.22.0
+matplotlib==3.8.4
+seaborn==0.13.2
