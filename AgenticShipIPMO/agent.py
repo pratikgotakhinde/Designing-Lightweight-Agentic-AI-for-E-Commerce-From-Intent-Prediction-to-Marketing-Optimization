@@ -28,18 +28,19 @@ class IntentScoringAgent:
             self.model = pickle.load(f)
 
     def score(self, features_df):
-        # Predict positive class probability
-        prob = self.model.predict_proba(features_df)[0][1]
-
-        # Map probability to tier using thresholds
-        if prob >= HIGH_THRESHOLD:
-            tier = "HIGH"
-        elif prob >= MEDIUM_THRESHOLD:
-            tier = "MEDIUM"
-        else:
-            tier = "LOW"
-
-        return round(prob, 4), tier
+    # Safety: align columns to what the booster expects
+    booster_features = self.model.get_booster().feature_names
+    if booster_features:
+        features_df = features_df.reindex(columns=booster_features, fill_value=0)
+    
+    prob = self.model.predict_proba(features_df)[0][1]
+    if prob >= HIGH_THRESHOLD:
+        tier = "HIGH"
+    elif prob >= MEDIUM_THRESHOLD:
+        tier = "MEDIUM"
+    else:
+        tier = "LOW"
+    return round(prob, 4), tier
 
 
 class ExplanationAgent:
